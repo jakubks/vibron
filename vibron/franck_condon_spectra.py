@@ -80,19 +80,19 @@ class Molecule:
 
         pcf = vcf * ecf #total phonon-vibrational correlation fun.
 
-        Corr_func = np.exp(1j * self.ex_energy * time - self.gamma * time) * pcf
-        FourierT = np.real(fft(Corr_func)[:positive]) - 0.5
+        corr_func = np.exp(1j * self.ex_energy * time - self.gamma * time) * pcf
+        fourierT = np.real(fft(corr_func)[:positive]) - 0.5
 
 
         if self.dipole == []:
 
             print('No dipole moment was given. Returning a normalized spectrum.')
-            spectrum = FourierT * energy_range**3
+            spectrum = fourierT * energy_range**3
             spectrum = spectrum / np.max(spectrum)
 
         else:
 
-            spectrum = FourierT * (upper_t/t_size) * energy_range**3 * dipole2(self.dipole)
+            spectrum = fourierT * (upper_t/t_size) * energy_range**3 * dipole2(self.dipole)
 
         return energy_range, spectrum
 
@@ -126,18 +126,18 @@ class Molecule:
 
         pcf = np.conjugate(vcf * ecf) #total phonon-vibrational correlation fun.
 
-        Corr_func = np.exp(1j * self.ex_energy * time - self.gamma * time) * pcf
-        Fourier = np.real(fft(Corr_func)[:positive]) - 0.5
+        corr_func = np.exp(1j * self.ex_energy * time - self.gamma * time) * pcf
+        fourier = np.real(fft(corr_func)[:positive]) - 0.5
 
         if self.dipole == []:
 
             print('No dipole moment was given. Returning a normalized spectrum.')
-            spectrum = Fourier * energy_range
+            spectrum = fourier * energy_range
             spectrum = spectrum / np.max(spectrum)
 
         else:
 
-            spectrum = FourierT * (upper_t/t_size) * energy_range * dipole2(self.dipole)
+            spectrum = fourierT * (upper_t/t_size) * energy_range * dipole2(self.dipole)
 
         return energy_range, spectrum
 
@@ -192,18 +192,18 @@ class Dye:
 
         pcf = vibcor.customfunc(self.freq, self.spec_dens, time, self.temp_K)
 
-        Corr_func = np.exp(1j * self.ex_energy * time - self.gamma * time) * pcf
-        FourierT = np.real(fft(Corr_func)[:positive]) - 0.5
+        corr_func = np.exp(1j * self.ex_energy * time - self.gamma * time) * pcf
+        fourierT = np.real(fft(corr_func)[:positive]) - 0.5
 
         if self.dipole == []:
 
             print('No dipole moment was given. Returning a normalized spectrum.')
-            spectrum = FourierT * energy_range**3
+            spectrum = fourierT * energy_range**3
             spectrum = spectrum / np.max(spectrum)
 
         else:
 
-            spectrum = FourierT * (upper_t/t_size) * energy_range**3 * dipole2(self.dipole)
+            spectrum = fourierT * (upper_t/t_size) * energy_range**3 * dipole2(self.dipole)
 
         return energy_range, spectrum
 
@@ -226,18 +226,18 @@ class Dye:
 
         pcf = vibcor.customfunc(self.freq, self.spec_dens, time, self.temp_K)
         pcf = np.conjugate(pcf)
-        Corr_func = np.exp(1j * self.ex_energy * time - self.gamma * time) * pcf
-        FourierT = np.real(fft(Corr_func)[:positive]) - 0.5
+        corr_func = np.exp(1j * self.ex_energy * time - self.gamma * time) * pcf
+        fourierT = np.real(fft(corr_func)[:positive]) - 0.5
 
         if self.dipole == []:
 
             print('No dipole moment was given. Returning a normalized spectrum.')
-            spectrum = FourierT * energy_range
+            spectrum = fourierT * energy_range
             spectrum = spectrum / np.max(spectrum)
 
         else:
 
-            spectrum = FourierT * (upper_t/t_size) * energy_range * dipole2(self.dipole)
+            spectrum = fourierT * (upper_t/t_size) * energy_range * dipole2(self.dipole)
 
         return energy_range, spectrum
 

@@ -11,9 +11,9 @@ class DonorAcceptor:
     All rates are calculated in s**(-1).
 
     Parameters:
-    DeltaE : energy difference between the products and reactants (i.e., the
+    deltaE : energy difference between the products and reactants (i.e., the
              driving force for the reaction) (eV)
-    V: electronic coupling between the reactants and products
+    h_DA: electronic coupling between the reactants and products
     lambda_o : outer-sphere reorganization energy (eV)
     w_cut : cut-off frequencies for the outer-sphere interactions (eV)
             (optional, only used for non-Marcus descriptions of the environment)
@@ -23,11 +23,11 @@ class DonorAcceptor:
                          vibrational modes in the donor/acceptor (dimensionless)
     """
 
-    def __init__(self, DeltaE = None, V = 0, lambda_o = 0, w_cut = None, temp_K = 300,
+    def __init__(self, deltaE = None, h_DA = 0, lambda_o = 0, w_cut = None, temp_K = 300,
        vib_modes_D = [], hr_parameters_D = [], vib_modes_A = [], hr_parameters_A = []):
 
-        self.DeltaE = DeltaE
-        self.V = V
+        self.deltaE = deltaE
+        self.h_DA= h_DA
         self.lambda_o = lambda_o
         self.w_cut = w_cut
         self.temp_K = temp_K
@@ -83,9 +83,9 @@ class DonorAcceptor:
             print(f'Total reorganization energy: {lambda_total:.3f} eV')
 
         kbT = self.temp_K * units.K2eV
-        exponent = np.exp(- (self.DeltaE + lambda_total)**2 / (4 * lambda_total * kbT ))
+        exponent = np.exp(- (self.deltaE + lambda_total)**2 / (4 * lambda_total * kbT ))
         pre_exponent = np.sqrt(np.pi/(lambda_total *kbT))
-        rate = np.abs(self.V)**2 * pre_exponent * exponent
+        rate = np.abs(self.h_DA)**2 * pre_exponent * exponent
 
         return rate / const.hbar
 
@@ -117,11 +117,11 @@ class DonorAcceptor:
 
             for m in range(mrange): # 100 should be enough for any reasonable HR param.
 
-                exponent = np.exp(- (self.DeltaE + self.lambda_o + m*omega)**2 / (4 * self.lambda_o * kbT ))
+                exponent = np.exp(- (self.deltaE + self.lambda_o + m*omega)**2 / (4 * self.lambda_o * kbT ))
                 rate += (S**m) * exponent / np.math.factorial(m)
 
             pre_exponent = np.sqrt(np.pi/(self.lambda_o *kbT))
-            rate = np.abs(self.V)**2 * pre_exponent * rate * np.exp(-S)
+            rate = np.abs(self.h_DA)**2 * pre_exponent * rate * np.exp(-S)
 
         else:
             raise Exception("More than one vibrational mode specified. Use 'mjl_multi' instead.")
@@ -148,32 +148,32 @@ class DonorAcceptor:
 
         if integration == 'quad':
 
-            def Corr_func(x):
-                VCF = vibcor.vcfunc(vib_modes, hr_parameters, x, self.temp_K)
-                ECF = vibcor.marcusfunc(self.lambda_o, x, self.temp_K)
-                PCF = VCF * ECF #total phonon-vibrational correlation fun.
+            def corr_func(x):
+                vcf = vibcor.vcfunc(vib_modes, hr_parameters, x, self.temp_K)
+                ecf = vibcor.marcusfunc(self.lambda_o, x, self.temp_K)
+                pcf = vcf * ecf #total phonon-vibrational correlation fun.
 
-                return np.real(np.exp(-1j * self.DeltaE * x ) * PCF)
+                return np.real(np.exp(-1j * self.deltaE * x ) * pcf)
 
-            rate = 2 * np.abs(self.V)**2 * scipy.integrate.quad(Corr_func, 0, np.inf)[0]
+            rate = 2 * np.abs(self.h_DA)**2 * scipy.integrate.quad(corr_func, 0, np.inf)[0]
 
         #elif integration == 'quad2':
-            #def Corr_func(x,vib_modes,hr_parameters,temp_K,lambda_o,DeltaE):
-                #VCF = vibcor.vcfunc(vib_modes, hr_parameters, x, temp_K)
-                #ECF = vibcor.marcusfunc(lambda_o, x, temp_K)
-                #PCF = VCF * ECF #total phonon-vibrational correlation fun.
-                #return np.real(np.exp(-1j * DeltaE * x ) * PCF)
-            #rate = 2 * np.abs(self.V)**2 * scipy.integrate.quad(Corr_func, 0, np.inf,args=(self.vib_modes,self.hr_parameters,self.temp_K,self.lambda_o,self.DeltaE))[0]
+            #def corr_func(x,vib_modes,hr_parameters,temp_K,lambda_o,deltaE):
+                #vcf = vibcor.vcfunc(vib_modes, hr_parameters, x, temp_K)
+                #ecf = vibcor.marcusfunc(lambda_o, x, temp_K)
+                #pcf = vcf * ecf #total phonon-vibrational correlation fun.
+                #return np.real(np.exp(-1j * deltaE * x ) * pcf)
+            #rate = 2 * np.abs(self.h_DA)**2 * scipy.integrate.quad(corr_func, 0, np.inf,args=(self.vib_modes,self.hr_parameters,self.temp_K,self.lambda_o,self.deltaE))[0]
 
         elif integration == 'trapz':
         #Trapezoidal integration implementation:
             t_size, upper_t = vibcor.time_grids('fine')
             time = np.linspace(0, upper_t, num=t_size)
-            VCF = vibcor.vcfunc(vib_modes, hr_parameters, time, self.temp_K)
-            ECF = vibcor.marcusfunc(self.lambda_o, time, self.temp_K)
-            PCF = VCF * ECF
-            Corr_func = np.exp(-1j * self.DeltaE * time ) * PCF
-            rate = 2 * np.abs(self.V)**2 * np.real(scipy.integrate.trapz(Corr_func, x=time))
+            vcf = vibcor.vcfunc(vib_modes, hr_parameters, time, self.temp_K)
+            ecf = vibcor.marcusfunc(self.lambda_o, time, self.temp_K)
+            pcf = vcf * ecf
+            corr_func = np.exp(-1j * self.deltaE * time ) * pcf
+            rate = 2 * np.abs(self.h_DA)**2 * np.real(scipy.integrate.trapz(corr_func, x=time))
 
         else:
             raise Exception("Integration mode not implemented. Try 'quad' or 'trapz'.")
@@ -205,24 +205,24 @@ class DonorAcceptor:
             t_size, upper_t = vibcor.time_grids('coarse')
             time = np.linspace(0, upper_t, num=t_size)
 
-            VCF = vibcor.vcfunc(vib_modes, hr_parameters, time, self.temp_K)
-            ECF = vibcor.ohmicfunc(self.lambda_o, self.w_cut, time, self.temp_K)
-            PCF = VCF * ECF
-            Corr_func = np.real(np.exp(-1j * self.DeltaE * time ) * PCF)
-            rate = 2 * np.abs(self.V)**2 * scipy.integrate.trapz(Corr_func, x=time)
+            vcf = vibcor.vcfunc(vib_modes, hr_parameters, time, self.temp_K)
+            ecf = vibcor.ohmicfunc(self.lambda_o, self.w_cut, time, self.temp_K)
+            pcf = vcf * ecf
+            corr_func = np.real(np.exp(-1j * self.deltaE * time ) * pcf)
+            rate = 2 * np.abs(self.h_DA)**2 * scipy.integrate.trapz(corr_func, x=time)
 
         elif integration == 'quad':
 
-            def Corr_func(x, vib_modes, hr_parameters, temp_K, lambda_o, w_cut, DeltaE):
+            def corr_func(x, vib_modes, hr_parameters, temp_K, lambda_o, w_cut, deltaE):
 
-                VCF = vibcor.vcfunc(vib_modes, hr_parameters, x, temp_K)
-                ECF = vibcor.bathfunc_quad(lambda_o, w_cut, x, temp_K, environment)
-                PCF = VCF * ECF #total phonon-vibrational correlation fun.
+                vcf = vibcor.vcfunc(vib_modes, hr_parameters, x, temp_K)
+                ecf = vibcor.bathfunc_quad(lambda_o, w_cut, x, temp_K, environment)
+                pcf = vcf * ecf #total phonon-vibrational correlation fun.
 
-                return np.real(np.exp(-1j * DeltaE * x ) * PCF)
+                return np.real(np.exp(-1j * deltaE * x ) * pcf)
 
-                rate = 2 * np.abs(self.V)**2 * scipy.integrate.quad(Corr_func, 0, np.inf,
-                args=(vib_modes,hr_parameters,self.temp_K,self.lambda_o,self.w_cut,self.DeltaE))[0]
+                rate = 2 * np.abs(self.h_DA)**2 * scipy.integrate.quad(corr_func, 0, np.inf,
+                args=(vib_modes,hr_parameters,self.temp_K,self.lambda_o,self.w_cut,self.deltaE))[0]
 
 
         return rate / const.hbar
@@ -238,9 +238,9 @@ class DonorAcceptor:
         t_size, upper_t = vibcor.time_grids(grid)
         time = np.linspace(0, upper_t, num=t_size)
 
-        PCF = vibcor.customfunc(freq, SD, time, self.temp_K)
-        Corr_func = np.real(np.exp(-1j * self.DeltaE * time ) * PCF)
-        rate = 2 * np.abs(self.V)**2 * scipy.integrate.simps(Corr_func, x=time)
+        pcf = vibcor.customfunc(freq, SD, time, self.temp_K)
+        corr_func = np.real(np.exp(-1j * self.deltaE * time ) * pcf)
+        rate = 2 * np.abs(self.h_DA)**2 * scipy.integrate.simps(corr_func, x=time)
 
         if self.lambda_o > 0 or len(self.vib_modes_A) > 0 or len(self.vib_modes_D) > 0:
             print("Custom spectral density provided. Ignoring vibrational/environment parameters.")
