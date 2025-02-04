@@ -14,7 +14,7 @@ A number of theoretical methods of calculating electron/energy transfer rates ar
 ### 3. Heterogenous electron transfer rates
 --Work in progress--
 
-### 4. Resonant charge transport through a molecular junction
+### 4. Resonant charge transport through molecular junctions
 --Work in progress--
 
 The `vibron.py` package also includes some basic functionality to read NWChem outputs and process the NWChem frequency calculation output to obtain the Huang-Rhys parameters.
