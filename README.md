@@ -9,12 +9,12 @@ The FC spectra can be calculated using supplied Huang-Rhys parameters (`Molecule
 
 ### 2. Electron/energy transfer rates
 
-A number of theoretical methods of calculating electron/energy transfer rates are implemented in the `DonorAcceptor` class. These include the non-adiabatic Marcus theory, single-mode and many-mode Marcus-Levich-Jortner theory, and the full Fermi Golden rule approach. 
+A number of theoretical methods of calculating electron/energy transfer rates are implemented in the `DonorAcceptor` class. These include the non-adiabatic Marcus theory, single-mode and many-mode Marcus-Levich-Jortner theory, and the full Fermi Golden rule approach (which is also implemented for a custom user-provided spectral density). 
 
 ### 3. Heterogenous electron transfer rates
 --Work in progress--
 
-The package also includes some basic functionality to read NWChem outputs and process the frequency calculation output to obtain the Huang-Rhys parameters.
+The `vibron.py` package also includes some basic functionality to read NWChem outputs and process the frequency calculation output to obtain the Huang-Rhys parameters.
 
 Several examples of usage are provided as Jupyter notebooks in the `examples/` directory.
 
