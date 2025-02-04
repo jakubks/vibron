@@ -19,7 +19,7 @@ Example of each usage is given in the `examples/` directory.
 
 ## Requirements
 
-The `vibron` is written in python3 and requires the following packages to be installed:
+The `vibron` package is written in python3 and requires the following packages to be installed:
 
 `numpy`
 
