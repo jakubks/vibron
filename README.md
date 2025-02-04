@@ -1,5 +1,6 @@
 
 <img src="https://github.com/jakubks/vibron/blob/main/vibron_logo.png" width="348">
+## Introduction
 
 `vibron.py` is a Python package that allows for an easy calculation of a number of molecular properties which rely on the coupling between the electronic and vibrational degrees of freedom such as:
 
@@ -30,3 +31,7 @@ The `vibron` package is written in python3 and requires the following packages t
 `sys`
 
 `scipy`
+
+## Contributions
+
+Questions, problems, suggestions? [Get in touch!](https://sites.google.com/view/jakubksowa#h.p_Y6ozqPgyTCZb)
