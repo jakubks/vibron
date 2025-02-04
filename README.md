@@ -1,6 +1,6 @@
 # vibron.py
 
-![alt text](https://github.com/jakubks/vibron/logo.png?raw=true)
+![alt text](https://github.com/jakubks/vibron/vibron_logo.png?raw=true)
 
 `vibron.py` is a Python package that allows for an easy calculation of a number of molecular properties which rely on the coupling between the electronic and vibrational degrees of freedom such as:
 
