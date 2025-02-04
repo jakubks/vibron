@@ -5,7 +5,7 @@
 
 ### 1. Franck-Condon emission and absorption spectra
 
-The FC spectra can be calculated using supplied Huang-Rhys parameters (`Molecule` class) or a custom user-provided spectral density (`Dye` class).
+The FC spectra can be calculated using calculated or provided Huang-Rhys parameters (`Molecule` class) or a custom user-provided spectral density (`Dye` class).
 
 ### 2. Electron/energy transfer rates
 
