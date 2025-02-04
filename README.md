@@ -5,11 +5,11 @@ This package allows for the calculation of a number of molecular properties whic
 
 ### 1. Franck-Condon emission and absorption spectra
 
-The FC spectra can be calculated using supplied Huang-Rhys parameters or custom user-provided spectral density.
+The FC spectra can be calculated using supplied Huang-Rhys parameters (`Molecule` class) or custom user-provided spectral density (`Dye` class).
 
 ### 2. Electron/energy transfer rates
 
-A number of theoretical methods of calculating electron/energy transfer rates are implemented including the non-adiabatic Marcus theory, single-mode and many-mode Marcus-Levich-Jortner theory, and the full Fermi Golden rule approach. 
+A number of theoretical methods of calculating electron/energy transfer rates are implemented in the `DonorAcceptor` class. These include the non-adiabatic Marcus theory, single-mode and many-mode Marcus-Levich-Jortner theory, and the full Fermi Golden rule approach. 
 
 
 
