@@ -83,5 +83,4 @@ def atoms2masses(atoms):
 
         masses[index] = const.atomic_masses[atom]
 
-
     return masses
