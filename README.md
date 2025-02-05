@@ -35,4 +35,4 @@ The `vibron` package is written in python3 and requires the following packages t
 
 ## Contributions
 
-Questions, problems, suggestions? [Get in touch!](https://sites.google.com/view/jakubksowa#h.p_Y6ozqPgyTCZb)
+This package is still a work in progress. Questions, problems, suggestions? [Get in touch!](https://sites.google.com/view/jakubksowa#h.p_Y6ozqPgyTCZb)
