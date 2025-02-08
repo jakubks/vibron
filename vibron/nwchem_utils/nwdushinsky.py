@@ -31,6 +31,8 @@ def huang_rhys(ref_molecule, fin_molecule):
     """
     Calculates the Huang-Rhys parameters using the Hessian output by NWChem
     and the reference and final geometries read from NWChem files
+    The calculation on the reference state must comprise geometry optimization
+    followed by a frequency calculation.
     """
 
     ref_atoms, ref_geom = nwread.read_geometry(ref_molecule)
@@ -82,5 +84,6 @@ def atoms2masses(atoms):
     for index, atom in enumerate(atoms):
 
         masses[index] = const.atomic_masses[atom]
+
 
     return masses

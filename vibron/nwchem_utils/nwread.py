@@ -39,7 +39,10 @@ def read_geometry(nwfile):
     return atoms, geometry
 
 def read_frequencies(nwfile):
-
+    """
+    Reads the frequencies of vibrational modes
+    Returns mode energies in eV
+    """
     natoms = read_natoms(nwfile)
     freqs = np.zeros(3*natoms)
 
@@ -97,6 +100,7 @@ def read_optenergy(nwfile):
     """
     Reads the energy of the optimized structure (the nwfile has to be an
     optimization calculation)
+    Returns energy in eV
     """
 
     with open(nwfile) as file:
@@ -112,6 +116,7 @@ def read_optenergy(nwfile):
 def read_energy(nwfile):
     """
     Reads the energy of a single-point calculation
+    Returns energy in eV
     """
 
     with open(nwfile) as file:
@@ -128,6 +133,7 @@ def read_tddft(nwfile, nroot = 1, mult = 'singlet'):
     """
     Reads the excited state energy of the nth-root of either the singlet
     or triplet as specified by mult = 'singlet' or 'triplet'
+    Returns excited state energy in eV
     """
 
     line_gs = 'Ground state energy ='
@@ -149,6 +155,7 @@ def read_tddft(nwfile, nroot = 1, mult = 'singlet'):
 def read_transitiondipole(nwfile, nroot = 1, mult = 'singlet'):
     """
     Reads the transition dipole for the n-th excited state
+    Returns the dipole moment in Debye
     """
     dipole = np.zeros(3)
 
@@ -165,8 +172,8 @@ def read_transitiondipole(nwfile, nroot = 1, mult = 'singlet'):
                 dipole[1] = float(f[jk+2].split()[5])
                 dipole[2] = float(f[jk+2].split()[7])
 
-    print('Transition dipole is in atomic units!')
-    return dipole
+
+    return dipole * units.au2D
 
 def read_ETcoupling(nwfile):
     """
