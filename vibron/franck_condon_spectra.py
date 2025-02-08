@@ -1,23 +1,25 @@
 import numpy as np
 from scipy.fftpack import fft, fftshift, fftfreq
-
+import scipy
 from vibron.utils import vibcor, molvibs, units, const
+import warnings
 
 class Molecule:
     """
     Molecule class for calculating Franck-Condon emission
     and absorption spectra with the following parameters:
 
-    ex_energy : excitation energy (typically S_1 energy wrt. S_0) (eV)
+    ex_energy : excited state energy (typically S_1 energy wrt. S_0) (eV)
     lambda_o : outer-sphere (environmental) reorganization energy (eV)
     w_cut : cut-off frequency for the outer-sphere coupling (eV)
-            (optional; required for non-Marcus descriptions of the environment)
+            (optional; required for the Ohmic description of the environment)
     vib_modes : a list of vibrational mode frequencies (eV)
     hr_parameters : a list of Huang-Rhys parameters for the vibrational modes
                     (dimensionless; the length and order has to be consistent
                     with 'vib_modes')
     gamma : lifetime associated with the transition (eV)
-    dipole : transition dipole moment (atomic units, optional)
+    dipole : transition dipole moment (D) (optional, required for the
+             fluorescence rate calculation)
     temp_K : temperature (K); 300 K by default
 
     """
@@ -60,7 +62,7 @@ class Molecule:
         if self.lambda_o == 0 and self.gamma == 0 and len(self.vib_modes) == 0:
             raise ValueError('No parameters for the spectrum specified.')
         elif self.lambda_o == 0 and self.gamma == 0:
-            print('Warning: Without outer-sphere coupling or lifetime broadening, the calculation is unstable. Introducing small gamma is recommended.')
+            warnings.warn('Warning: Without outer-sphere coupling or lifetime broadening, the calculation is unstable. Introducing small gamma is recommended.')
 
         t_size, upper_t = time_grid(grid)
         positive = int(t_size/2)
@@ -68,34 +70,22 @@ class Molecule:
         energy_range = 2* np.pi * fftfreq(t_size,upper_t/t_size)[:positive]
 
         vcf = vibcor.vcfunc(self.vib_modes, self.hr_parameters, time, self.temp_K)
-
-        if environment.lower() == "marcus":
-            ecf = vibcor.marcusfunc(self.lambda_o, time, self.temp_K)
-
-        elif environment.lower() == 'ohmic':
-            ecf = vibcor.ohmicfunc(self.lambda_o, self.w_cut, time, self.temp_K)
-
-        else:
-            raise Exception("Environment type unknown.")
+        ecf = env_cf(environment, time, self.lambda_o, self.w_cut, self.temp_K)
 
         pcf = vcf * ecf #total phonon-vibrational correlation fun.
 
         corr_func = np.exp(1j * self.ex_energy * time - self.gamma * time) * pcf
         fourierT = np.real(fft(corr_func)[:positive]) - 0.5
 
-
         if self.dipole == []:
-
             print('No dipole moment was given. Returning a normalized spectrum.')
             spectrum = fourierT * energy_range**3
             spectrum = spectrum / np.max(spectrum)
 
         else:
-
             spectrum = fourierT * (upper_t/t_size) * energy_range**3 * dipole2(self.dipole)
 
         return energy_range, spectrum
-
 
 
     def absorption_spectrum(self, environment='Marcus', grid="fine"):
@@ -114,32 +104,43 @@ class Molecule:
         energy_range = 2* np.pi * fftfreq(t_size,upper_t/t_size)[:positive]
 
         vcf = vibcor.vcfunc(self.vib_modes, self.hr_parameters, time, self.temp_K)
-
-        if environment.lower() == "marcus":
-            ecf = vibcor.marcusfunc(self.lambda_o, time, self.temp_K)
-
-        elif environment.lower() == 'ohmic':
-            ecf = vibcor.ohmicfunc(self.lambda_o, self.w_cut, time, self.temp_K)
-
-        else:
-            raise Exception("Environment type unknown.")
+        ecf = env_cf(environment, time, self.lambda_o, self.w_cut, self.temp_K)
 
         pcf = np.conjugate(vcf * ecf) #total phonon-vibrational correlation fun.
 
         corr_func = np.exp(1j * self.ex_energy * time - self.gamma * time) * pcf
-        fourier = np.real(fft(corr_func)[:positive]) - 0.5
+        fourierT = np.real(fft(corr_func)[:positive]) - 0.5
 
         if self.dipole == []:
-
             print('No dipole moment was given. Returning a normalized spectrum.')
-            spectrum = fourier * energy_range
+            spectrum = fourierT * energy_range
             spectrum = spectrum / np.max(spectrum)
 
         else:
-
             spectrum = fourierT * (upper_t/t_size) * energy_range * dipole2(self.dipole)
 
         return energy_range, spectrum
+
+    def fluorescence_rate(self, environment='Marcus', grid="fine"):
+        """
+        Calculates the fluorescence rate in s**(-1) from the Einstein A
+        coefficient-type expression. Requires the transition dipole (in Debye).
+        It is recommended to set Molecule.gamma = 0 for the fluorescence rate
+        calculation.
+        """
+
+        if self.dipole == []:
+            raise ValueError('Dipole moment is missing.')
+        elif self.gamma > 0:
+            warnings.warn('The use of lifetime broadening when calculating the fluorescence rate is generally not recommended.')
+
+        energy_range, spectrum = self.emission_spectrum(environment, grid)
+
+        spectr_integ = scipy.integrate.simps(spectrum, energy_range)/np.pi
+
+        fluor_rate = units.D2eA **2 * spectr_integ /(3*np.pi)
+
+        return fluor_rate / const.eps0hbar4c3
 
 class Dye:
     """
@@ -147,7 +148,7 @@ class Dye:
     spectra density
 
     Parameters:
-    ex_energy : excitation energy (typically S_1 energy wrt. S_0) (eV)
+    vert_energy : vertical excitation energy (eV)
     freq : frequency range for the spectral density
     J : vibrational (phononic) spectral density
     gamma : lifetime associated with the transition (eV)
@@ -155,10 +156,10 @@ class Dye:
     temp_K : temperature (K); 300 K by default
     """
 
-    def __init__(self, ex_energy = None, freq = [], spec_dens = [],
+    def __init__(self, vert_energy = None, freq = [], spec_dens = [],
                  gamma = 0, dipole = [], temp_K = 300):
 
-        self.ex_energy = ex_energy
+        self.vert_energy = vert_energy
         self.freq = freq
         self.spec_dens = spec_dens
         self.gamma = gamma
@@ -181,8 +182,8 @@ class Dye:
         implemented.
         """
 
-        if self.spec_dens == [] or self.freq == [] or self.ex_energy == None:
-            raise ValueError('No parameters for the spectrum specified.')
+        if self.spec_dens == [] or self.freq == [] or self.vert_energy == None:
+            raise ValueError('No enough parameters for the spectrum.')
 
 
         t_size, upper_t = time_grid(grid)
@@ -192,7 +193,8 @@ class Dye:
 
         pcf = vibcor.customfunc(self.freq, self.spec_dens, time, self.temp_K)
 
-        corr_func = np.exp(1j * self.ex_energy * time - self.gamma * time) * pcf
+        epsilon_bar = self.vert_energy - self.reorganization()
+        corr_func = np.exp(1j * epsilon_bar * time - self.gamma * time) * pcf
         fourierT = np.real(fft(corr_func)[:positive]) - 0.5
 
         if self.dipole == []:
@@ -202,7 +204,6 @@ class Dye:
             spectrum = spectrum / np.max(spectrum)
 
         else:
-
             spectrum = fourierT * (upper_t/t_size) * energy_range**3 * dipole2(self.dipole)
 
         return energy_range, spectrum
@@ -216,7 +217,7 @@ class Dye:
         implemented.
         """
 
-        if self.spec_dens == [] or self.freq == [] or self.ex_energy == None:
+        if self.spec_dens == [] or self.freq == [] or self.vert_energy == None:
             raise ValueError('No parameters for the spectrum specified.')
 
         t_size, upper_t = time_grid(grid)
@@ -226,7 +227,9 @@ class Dye:
 
         pcf = vibcor.customfunc(self.freq, self.spec_dens, time, self.temp_K)
         pcf = np.conjugate(pcf)
-        corr_func = np.exp(1j * self.ex_energy * time - self.gamma * time) * pcf
+
+        epsilon_bar = self.vert_energy - self.reorganization()
+        corr_func = np.exp(1j * epsilon_bar * time - self.gamma * time) * pcf
         fourierT = np.real(fft(corr_func)[:positive]) - 0.5
 
         if self.dipole == []:
@@ -236,11 +239,49 @@ class Dye:
             spectrum = spectrum / np.max(spectrum)
 
         else:
-
             spectrum = fourierT * (upper_t/t_size) * energy_range * dipole2(self.dipole)
 
         return energy_range, spectrum
 
+    def fluorescence_rate(self, grid="fine"):
+        """
+        Calculates the fluorescence rate in s**(-1) from the Einstein A
+        coefficient-type expression. Requires the transition dipole (in Debye).
+        It is recommended to set Dye.gamma = 0 for the fluorescence rate
+        calculation.
+        """
+
+        if self.dipole == []:
+            raise ValueError('Dipole moment is missing.')
+        elif self.gamma > 0:
+            warnings.warn('The use of lifetime broadening when calculating the fluorescence rate is generally not recommended.')
+
+        energy_range, spectrum = self.emission_spectrum(grid)
+
+        spectr_integ = scipy.integrate.simps(spectrum, energy_range)/np.pi
+
+        fluor_rate = units.D2eA **2 * spectr_integ /(3*np.pi)
+
+        return fluor_rate / const.eps0hbar4c3
+
+
+###############################################################################
+###############################################################################
+###############################################################################
+
+
+def env_cf(environment, time, lambda_o, w_cut, temp_K):
+
+    if environment.lower() == "marcus":
+        ecf = vibcor.marcusfunc(lambda_o, time, temp_K)
+
+    elif environment.lower() == 'ohmic':
+        ecf = vibcor.ohmicfunc(lambda_o, w_cut, time, temp_K)
+
+    else:
+        raise Exception("Environment type unknown.")
+
+    return ecf
 
 def dipole2(dipole):
     "Checks is self.dipole has a right format and outputs its square"

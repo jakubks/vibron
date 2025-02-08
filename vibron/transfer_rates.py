@@ -1,7 +1,6 @@
 import numpy as np
 import scipy
 from scipy.fftpack import fft, fftshift, fftfreq
-
 from vibron.utils import vibcor, molvibs, units, const
 
 
@@ -105,7 +104,6 @@ class DonorAcceptor:
         if self.lambda_o == 0:
             raise Exception('The outer-sphere reorganization energy is equal to zero.')
         elif len(vib_modes) == 0:
-
             raise Exception("The molecular vibrational mode is not specified. ")
 
         elif len(vib_modes) == 1: #single mode; evaluating the rate analytically
