@@ -6,18 +6,18 @@
 
 `vibron.py` is a Python package that allows for an easy calculation of a number of molecular properties which rely on the coupling between the electronic and vibrational degrees of freedom such as:
 
-### 1. Franck-Condon emission and absorption spectra
+### 1. Franck-Condon Emission and Absorption Spectra
 
-The FC absorption/emission spectra and fluorescence lifetimes can be calculated using calculated or provided Huang-Rhys parameters (`Molecule` class) or a custom user-provided spectral density (`Dye` class).
+The FC absorption/emission spectra and fluorescence lifetimes can be calculated using provided Huang-Rhys parameters (`Molecule` class) or a custom user-provided spectral density (`Dye` class).
 
-### 2. Electron/energy transfer rates
+### 2. Charge/Energy Transfer Rates
 
 A number of theoretical methods of calculating electron/energy transfer rates are implemented in the `DonorAcceptor` class. These include the non-adiabatic Marcus theory, single-mode and many-mode Marcus-Levich-Jortner theory, and the full Fermi Golden rule approach (which is also implemented for a custom user-provided spectral density). 
 
-### 3. Heterogenous electron transfer rates
+### 3. Heterogenous Electron Transfer Rates
 --Work in progress--
 
-### 4. Resonant charge transport through molecular junctions
+### 4. Resonant Charge Transport through Molecular Junctions
 --Work in progress--
 
 The `vibron.py` package also includes some basic functionality to read NWChem outputs and process the NWChem frequency calculation output to obtain the Huang-Rhys parameters.
