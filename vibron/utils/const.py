@@ -1,14 +1,29 @@
 """
 Physical constants
 """
-
+##
 kb = 8.6173303e-5 #Boltzman constant in eV/K
+
 hbar = 6.58212e-16 # hbar in eV * s
 
-
 amu = 1.66054e-27 # kg
-hbarAng = 1.05457181e-14 # (kg * Angstrom**2 * s**-2) * s
 
+hbarAng = 1.05457181e-14 # hbar in (kg * Angstrom**2 * s**-2) * s
+
+c = 299792458 # speed of light m / s
+
+epsilon0 = 55.263494e-4 #epsilon_0 in e**2 eV**-1 Angstrom**-1
+
+"""
+Constants for fluorescence rate calculation
+"""
+
+eps0hbar4c3 = epsilon0 * c**3 * (hbar*1e10)**3 * hbar
+
+
+"""
+Atomic masses
+"""
 atomic_masses = {
     "H": 1.008,
     "He": 4.0026,

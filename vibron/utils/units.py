@@ -11,3 +11,4 @@ K2eV = 8.6173303e-5
 eV2nm = 1239.84193 # eV to nm**-1
 
 au2D = 2.541765 #atomic units to Debye (dipole moment)
+D2eA = 0.2081943 # Debye to e*Angstrom
