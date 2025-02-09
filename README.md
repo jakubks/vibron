@@ -22,7 +22,7 @@ A number of theoretical methods of calculating electron/energy transfer rates ar
 
 The `vibron.py` package also includes some basic functionality to read NWChem outputs and process the NWChem frequency calculation output to obtain the Huang-Rhys parameters.
 
-Several examples of usage are provided as Jupyter notebooks in the `examples/` directory.
+Multiple examples of usage are provided as Jupyter notebooks in the `examples/` directory.
 
 ## Requirements
 
