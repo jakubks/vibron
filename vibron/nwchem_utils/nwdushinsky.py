@@ -13,8 +13,8 @@ def align_geometries(ref_geom, fin_geom, atoms):
 
     masses3 = np.transpose(np.array([masses, masses, masses]))
 
-    ref_center = np.sum(masses3*ref_geom,axis=0)
-    fin_center = np.sum(masses3*fin_geom,axis=0)
+    ref_center = np.sum(masses3*ref_geom,axis=0)/np.sum(masses3,axis=0)
+    fin_center = np.sum(masses3*fin_geom,axis=0)/np.sum(masses3,axis=0)
 
     ref_geom = ref_geom - ref_center
     fin_geom = fin_geom - fin_center
