@@ -101,8 +101,8 @@ def read_energy(nwfile):
         f = file.readlines()
 
         for jk in range(len(f)):
-            if 'SCF Done =' in f[jk]:
-                energy = float(f[jk].split()[5])
+            if 'SCF Done:' in f[jk]:
+                energy = float(f[jk].split()[4])
 
     return energy * units.Ha2eV
 
