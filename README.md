@@ -20,7 +20,7 @@ A number of theoretical methods of calculating electron/energy transfer rates ar
 ### 4. Resonant Charge Transport through Molecular Junctions
 --Work in progress--
 
-The `vibron.py` package also includes some basic functionality to read NWChem outputs and process the NWChem frequency calculation output to obtain the Huang-Rhys parameters.
+The `vibron.py` package also includes some basic functionality to read NWChem/Gaussian outputs and process the frequency calculation outputs to obtain the Huang-Rhys parameters.
 
 Multiple examples of usage are provided as Jupyter notebooks in the `examples/` directory.
 
