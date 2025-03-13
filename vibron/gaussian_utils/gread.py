@@ -79,14 +79,9 @@ def extract_geometry(logfile, natoms):
         geom_data[ij-geom_start-5,1] = float(line[4])
         geom_data[ij-geom_start-5,2] = float(line[5])
 
-        if line[1] == '1':
-            atoms.append('H')
-        elif line[1] == '6':
-            atoms.append('C')
-        elif line[1] == '14':
-            atoms.append('Si')
-        else:
-            raise Exception("atoms")
+        indx = int(line[1]) - 1
+        symbol = const.atomic_symbols[indx]
+        atoms.append(symbol)
 
     return atoms, geom_data
 
